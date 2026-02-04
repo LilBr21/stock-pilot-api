@@ -1,0 +1,7 @@
+name = "stock-pilot"
+dependencies = [
+  "fastapi",
+  "sqlalchemy",
+]
+
+# to be extended

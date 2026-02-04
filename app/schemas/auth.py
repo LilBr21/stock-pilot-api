@@ -1,0 +1,1 @@
+# pydantic auth schema
