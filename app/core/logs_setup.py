@@ -3,8 +3,8 @@ import sys
 from config import settings
 
 def logging_setup():
-    logger = logging.getLogger()
-    logger.setLevel(getattr(logging, settings.loglevel, logging.INFO))
+    logger = logging.getLogger("stock_pilot")
+    logger.setLevel(settings.loglevel)
 
     console_handler = logging.StreamHandler(sys.stdout)
     # file_handler = logging.FileHandler("logs.log", mode="a", encoding="UTF-8")
