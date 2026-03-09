@@ -1,19 +1,14 @@
-# TODO: Implement User model
-#
-# Table: users
-# Columns:
-# - id: UUID (primary key, default uuid4)
-# - email: String(255), unique, indexed
-# - hashed_password: String(255)
-# - full_name: String(100), nullable
-# - is_active: Boolean, default True
-# - created_at: DateTime, server_default=func.now()
-# - updated_at: DateTime, server_default=func.now(), onupdate=func.now()
-#
-# Relationships:
-# - watchlists: one-to-many with Watchlist
-#
-# Hints:
-# from sqlalchemy import String, Boolean, DateTime, func
-# from sqlalchemy.dialects.postgresql import UUID
-# from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.db.base import Base, TimestampMixin
+
+class User(Base, TimestampMixin):
+    __tablename__ = 'users'
+
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))
+    display_name: Mapped[str] = mapped_column(String(100))
+    is_active: Mapped[bool] = mapped_column(default=True)
+
+    watchlists: Mapped[list["Watchlist"]] = relationship("Watchlist", back_populates="user")
+
