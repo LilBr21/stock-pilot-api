@@ -1,23 +1,46 @@
-# TODO: Implement security utilities
-#
-# Functions to implement:
-# 1. verify_password(plain_password: str, hashed_password: str) -> bool
-#    - Use passlib with bcrypt
-#
-# 2. get_password_hash(password: str) -> str
-#    - Use passlib with bcrypt
-#
-# 3. create_access_token(data: dict, expires_delta: timedelta | None = None) -> str
-#    - Use python-jose to create JWT
-#    - Include "exp" and "type": "access" in payload
-#
-# 4. create_refresh_token(data: dict, expires_delta: timedelta | None = None) -> str
-#    - Similar to access token but with "type": "refresh"
-#
-# 5. decode_token(token: str) -> dict | None
-#    - Decode and validate JWT, return None if invalid
-#
-# Hints:
-# from jose import jwt
-# from passlib.context import CryptContext
-# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from datetime import datetime, timedelta, timezone
+from typing import Any
+
+import jwt
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
+from pwdlib.hashers.bcrypt import BcryptHasher
+
+from app.core.config import settings
+
+password_hash = PasswordHash(
+    (
+        Argon2Hasher(),
+        BcryptHasher(),
+    )
+)
+
+
+def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
+    iat = datetime.now(timezone.utc)
+    expire = iat + expires_delta
+    to_encode = {"exp": expire, "sub": str(subject), "iat": iat, "type": "access"}
+    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    return encoded_jwt
+
+
+def create_refresh_token(subject: str | Any, expires_delta: timedelta) -> str:
+    iat = datetime.now(timezone.utc)
+    expire = iat + expires_delta
+    to_encode = {"exp": expire, "sub": str(subject), "iat": iat, "type": "refresh"}
+    refresh_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    return refresh_jwt
+
+
+def decode_token(token: str) -> dict:
+    decoded = jwt.decode(token, settings.secret_key, algorithm=settings.algorithm)
+    return decoded
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    verified, _ = password_hash.verify_and_update(plain_password, hashed_password)
+    return verified
+
+
+def get_password_hash(password: str) -> str:
+    return password_hash.hash(password)
