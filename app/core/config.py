@@ -1,11 +1,12 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
-    from typing import Literal
+from typing import Literal
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR/".env.example",
+        env_file=(BASE_DIR / ".env.example", BASE_DIR / ".env"),
         env_ignore_empty=True,
         env_file_encoding="utf-8",
         extra="ignore"
@@ -15,7 +16,7 @@ class Settings(BaseSettings):
     secret_key: str = "secret_key"
     algorithm: str = "HS256"
     debug: bool = True
-    Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    logLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     finnhub_api_key: str = "finnhub-key"
     finnhub_base_url: str = "https://finnhub.io/api/v1"
     access_token_expire_minutes: int = 30
